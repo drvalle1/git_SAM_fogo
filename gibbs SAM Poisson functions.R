@@ -36,7 +36,7 @@ acceptMH <- function(p0,p1,x0,x1,BLOCK){   #accept for M, M-H
   list(x = x0, accept = accept)
 }
 #---------------------------------------------------------------------
-update.betas=function(betas,nparam,ngroup,jump,alpha,plot.id,z,xmat1,y1){
+update.betas=function(betas,nparam,ngroup,jump,alpha,plot.id,z,xmat1,y1,tau2){
   betas.old=betas.orig=betas
   betas.new=matrix(rnorm(nparam*ngroup,mean=betas.old,sd=jump),nparam,ngroup)  
   alpha1=alpha[plot.id,]
@@ -65,8 +65,8 @@ update.betas=function(betas,nparam,ngroup,jump,alpha,plot.id,z,xmat1,y1){
     fim1[cond,c('lprob.old','lprob.new')]=0
     
     #need to add prior
-    prior.old=-(1/2)*colSums(betas.old^2)
-    prior.new=-(1/2)*colSums(betas.new^2)
+    prior.old=-(1/(2*tau2))*colSums(betas.old^2)
+    prior.new=-(1/(2*tau2))*colSums(betas.new^2)
     k=acceptMH(p0=fim1$lprob.old+prior.old,
                p1=fim1$lprob.new+prior.new,
                x0=betas.old[i,],
@@ -76,7 +76,7 @@ update.betas=function(betas,nparam,ngroup,jump,alpha,plot.id,z,xmat1,y1){
   list(betas=betas.old,accept=betas.old!=betas.orig)
 }
 #---------------------------------------------------------------------
-update.z=function(ngroup,xmat1,betas,plot.id,alpha,y1,log.theta){
+update.z=function(ngroup,xmat1,betas,plot.id,alpha,y1,log.theta,nspp){
   tmp=exp(xmat1%*%betas)
   alpha1=alpha[plot.id,]
   
